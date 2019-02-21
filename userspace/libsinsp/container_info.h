@@ -130,8 +130,8 @@ public:
 		m_cpu_shares(1024),
 		m_cpu_quota(0),
 		m_cpu_period(100000),
-		m_has_healthcheck(false),
-		m_healthcheck_exe(""),
+		m_has_health_probe(false),
+		m_health_probe_exe(""),
 		m_is_pod_sandbox(false)
 #ifdef HAS_ANALYZER
 		,m_metadata_deadline(0)
@@ -139,8 +139,9 @@ public:
 	{
 	}
 
-	std::string normalize_healthcheck_arg(const std::string &arg);
+	std::string normalize_health_probe_arg(const std::string &arg);
 	void parse_healthcheck(const Json::Value &config_obj);
+	void parse_liveness_probe(const Json::Value &config_obj);
 
 	const std::vector<std::string>& get_env() const { return m_env; }
 
@@ -173,9 +174,11 @@ public:
 	int64_t m_cpu_quota;
 	int64_t m_cpu_period;
 	Json::Value m_healthcheck_obj;
-	bool m_has_healthcheck;
-	std::string m_healthcheck_exe;
-	std::vector<std::string> m_healthcheck_args;
+	Json::Value m_liveness_probe_obj;
+	bool m_has_health_probe;
+	std::string m_health_probe_exe;
+	std::vector<std::string> m_health_probe_args;
+
 	bool m_is_pod_sandbox;
 #ifdef HAS_ANALYZER
 	std::string m_sysdig_agent_conf;

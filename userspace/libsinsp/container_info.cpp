@@ -59,7 +59,7 @@ const sinsp_container_info::container_mount_info *sinsp_container_info::mount_by
 	return NULL;
 }
 
-std::string sinsp_container_info::normalize_healthcheck_arg(const std::string &arg)
+std::string sinsp_container_info::normalize_health_probe_arg(const std::string &arg)
 {
 	std::string ret = arg;
 
@@ -85,26 +85,55 @@ void sinsp_container_info::parse_healthcheck(const Json::Value &healthcheck_obj)
 {
 	if(!healthcheck_obj.isNull())
 	{
+		m_healthcheck_obj = healthcheck_obj;
+
 		const Json::Value &test_obj = healthcheck_obj["Test"];
 
 		if(!test_obj.isNull() && test_obj.isArray() && test_obj.size() >= 2)
 		{
 			if(test_obj[0].asString() == "CMD")
 			{
-				m_has_healthcheck = true;
-				m_healthcheck_exe = normalize_healthcheck_arg(test_obj[1].asString());
+				m_has_health_probe = true;
+				m_health_probe_exe = normalize_health_probe_arg(test_obj[1].asString());
 
 				for(uint32_t i = 2; i < test_obj.size(); i++)
 				{
-					m_healthcheck_args.push_back(normalize_healthcheck_arg(test_obj[i].asString()));
+					m_health_probe_args.push_back(normalize_health_probe_arg(test_obj[i].asString()));
 				}
 			}
 			else if(test_obj[0].asString() == "CMD-SHELL")
 			{
-				m_has_healthcheck = true;
-				m_healthcheck_exe = "/bin/sh";
-				m_healthcheck_args.push_back("-c");
-				m_healthcheck_args.push_back(test_obj[1].asString());
+				m_has_health_probe = true;
+				m_health_probe_exe = "/bin/sh";
+				m_health_probe_args.push_back("-c");
+				m_health_probe_args.push_back(test_obj[1].asString());
+			}
+		}
+	}
+}
+
+void sinsp_container_info::parse_liveness_probe(const Json::Value &liveness_probe_obj)
+{
+	if(!liveness_probe_obj.isNull())
+	{
+		m_liveness_probe_obj = liveness_probe_obj;
+
+		const Json::Value &exec_obj = liveness_probe_obj["exec"];
+
+		if(exec_obj.isNull())
+		{
+			return;
+		}
+
+		const Json::Value command_obj = exec_obj["command"];
+
+		if(!command_obj.isNull() && command_obj.isArray())
+		{
+			m_has_health_probe = true;
+			m_health_probe_exe = normalize_health_probe_arg(command_obj[0].asString());
+			for(uint32_t i = 1; i < command_obj.size(); i++)
+			{
+				m_health_probe_args.push_back(normalize_health_probe_arg(command_obj[i].asString()));
 			}
 		}
 	}
