@@ -175,6 +175,11 @@ string sinsp_container_manager::container_to_json(const sinsp_container_info& co
 		container["livenessProbe"] = container_info.m_liveness_probe_obj;
 	}
 
+	if(!container_info.m_readiness_probe_obj.isNull())
+	{
+		container["readinessProbe"] = container_info.m_readiness_probe_obj;
+	}
+
 	char addrbuff[100];
 	uint32_t iph = htonl(container_info.m_container_ip);
 	inet_ntop(AF_INET, &iph, addrbuff, sizeof(addrbuff));
@@ -347,9 +352,13 @@ void sinsp_container_manager::identify_category(sinsp_threadinfo *tinfo)
 		{
 			tinfo->m_category = sinsp_threadinfo::CAT_HEALTHCHECK;
 		}
-		else
+		else if (!cinfo->m_liveness_probe_obj.isNull())
 		{
 			tinfo->m_category = sinsp_threadinfo::CAT_LIVENESS_PROBE;
+		}
+		else
+		{
+			tinfo->m_category = sinsp_threadinfo::CAT_READINESS_PROBE;
 		}
 	}
 }

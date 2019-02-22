@@ -141,7 +141,7 @@ public:
 
 	std::string normalize_health_probe_arg(const std::string &arg);
 	void parse_healthcheck(const Json::Value &config_obj);
-	void parse_liveness_probe(const Json::Value &config_obj);
+	void parse_liveness_readiness_probe(const Json::Value &config_obj);
 
 	const std::vector<std::string>& get_env() const { return m_env; }
 
@@ -175,6 +175,7 @@ public:
 	int64_t m_cpu_period;
 	Json::Value m_healthcheck_obj;
 	Json::Value m_liveness_probe_obj;
+	Json::Value m_readiness_probe_obj;
 	bool m_has_health_probe;
 	std::string m_health_probe_exe;
 	std::vector<std::string> m_health_probe_args;

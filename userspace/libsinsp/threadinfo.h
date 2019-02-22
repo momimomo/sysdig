@@ -270,7 +270,8 @@ public:
 	enum command_category {
 		CAT_NONE = 0,
 		CAT_HEALTHCHECK,
-		CAT_LIVENESS_PROBE
+		CAT_LIVENESS_PROBE,
+		CAT_READINESS_PROBE
 	};
 
 	command_category m_category;

@@ -4534,7 +4534,12 @@ void sinsp_parser::parse_container_json_evt(sinsp_evt *evt)
 		libsinsp::container_engine::docker::parse_json_mounts(container["Mounts"], container_info.m_mounts);
 
 		container_info.parse_healthcheck(container["Healthcheck"]);
-		container_info.parse_liveness_probe(container["livenessProbe"]);
+		container_info.parse_liveness_readiness_probe(container["livenessProbe"]);
+		container_info.parse_liveness_readiness_probe(container["readinessProbe"]);
+
+		container_info.m_liveness_probe_obj = container["livenessProbe"];
+		container_info.m_readiness_probe_obj = container["readinessProbe"];
+
 		const Json::Value& contip = container["ip"];
 		if(!contip.isNull() && contip.isConvertibleTo(Json::stringValue))
 		{

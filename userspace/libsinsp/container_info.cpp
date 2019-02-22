@@ -112,13 +112,11 @@ void sinsp_container_info::parse_healthcheck(const Json::Value &healthcheck_obj)
 	}
 }
 
-void sinsp_container_info::parse_liveness_probe(const Json::Value &liveness_probe_obj)
+void sinsp_container_info::parse_liveness_readiness_probe(const Json::Value &probe_obj)
 {
-	if(!liveness_probe_obj.isNull())
+	if(!probe_obj.isNull())
 	{
-		m_liveness_probe_obj = liveness_probe_obj;
-
-		const Json::Value &exec_obj = liveness_probe_obj["exec"];
+		const Json::Value &exec_obj = probe_obj["exec"];
 
 		if(exec_obj.isNull())
 		{

@@ -1811,6 +1811,7 @@ const filtercheck_field_info sinsp_filter_check_thread_fields[] =
 	{PT_INT64, EPF_NONE, PF_ID, "proc.vpgid", "the process group id of the process generating the event, as seen from its current PID namespace."},
 	{PT_BOOL, EPF_NONE, PF_NA, "proc.is_container_healthcheck", "true if this process is running as a part of the container's health check."},
 	{PT_BOOL, EPF_NONE, PF_NA, "proc.is_container_liveness_probe", "true if this process is running as a part of the container's liveness probe."},
+	{PT_BOOL, EPF_NONE, PF_NA, "proc.is_container_readiness_probe", "true if this process is running as a part of the container's readiness probe."},
 };
 
 sinsp_filter_check_thread::sinsp_filter_check_thread()
@@ -2604,6 +2605,9 @@ uint8_t* sinsp_filter_check_thread::extract(sinsp_evt *evt, OUT uint32_t* len, b
 		RETURN_EXTRACT_VAR(m_tbool);
 	case TYPE_IS_CONTAINER_LIVENESS_PROBE:
 		m_tbool = (tinfo->m_category == sinsp_threadinfo::CAT_LIVENESS_PROBE);
+		RETURN_EXTRACT_VAR(m_tbool);
+	case TYPE_IS_CONTAINER_READINESS_PROBE:
+		m_tbool = (tinfo->m_category == sinsp_threadinfo::CAT_READINESS_PROBE);
 		RETURN_EXTRACT_VAR(m_tbool);
 	default:
 		ASSERT(false);
@@ -5905,7 +5909,8 @@ const filtercheck_field_info sinsp_filter_check_container_fields[] =
 	{PT_CHARBUF, EPF_NONE, PF_NA, "container.image.tag", "the container image tag (e.g. stable, latest)."},
 	{PT_CHARBUF, EPF_NONE, PF_NA, "container.image.digest", "the container image registry digest (e.g. sha256:d977378f890d445c15e51795296e4e5062f109ce6da83e0a355fc4ad8699d27)."},
 	{PT_CHARBUF, EPF_NONE, PF_NA, "container.healthcheck", "The container's health check. Will be the null value (\"N/A\") if no healthcheck configured, \"NONE\" if configured but explicitly not created, and the healthcheck command line otherwise"},
-	{PT_CHARBUF, EPF_NONE, PF_NA, "container.liveness_probe", "The container's liveness probe. Will be the null value (\"N/A\") if no liveness probe configured, the liveness probe command line otherwise"}
+	{PT_CHARBUF, EPF_NONE, PF_NA, "container.liveness_probe", "The container's liveness probe. Will be the null value (\"N/A\") if no liveness probe configured, the liveness probe command line otherwise"},
+	{PT_CHARBUF, EPF_NONE, PF_NA, "container.readiness_probe", "The container's readiness probe. Will be the null value (\"N/A\") if no readiness probe configured, the readiness probe command line otherwise"}
 };
 
 sinsp_filter_check_container::sinsp_filter_check_container()
@@ -6331,6 +6336,7 @@ uint8_t* sinsp_filter_check_container::extract(sinsp_evt *evt, OUT uint32_t* len
 		break;
 	case TYPE_CONTAINER_HEALTHCHECK:
 	case TYPE_CONTAINER_LIVENESS_PROBE:
+	case TYPE_CONTAINER_READINESS_PROBE:
 		if(tinfo->m_container_id.empty())
 		{
 			return NULL;
@@ -6345,7 +6351,8 @@ uint8_t* sinsp_filter_check_container::extract(sinsp_evt *evt, OUT uint32_t* len
 			}
 
 			if((m_field_id == TYPE_CONTAINER_HEALTHCHECK && container_info->m_healthcheck_obj.isNull()) ||
-			   (m_field_id == TYPE_CONTAINER_LIVENESS_PROBE && container_info->m_liveness_probe_obj.isNull()))
+			   (m_field_id == TYPE_CONTAINER_LIVENESS_PROBE && container_info->m_liveness_probe_obj.isNull()) ||
+			   (m_field_id == TYPE_CONTAINER_READINESS_PROBE && container_info->m_readiness_probe_obj.isNull()))
 			{
 				return NULL;
 			}

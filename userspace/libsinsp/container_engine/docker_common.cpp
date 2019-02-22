@@ -92,10 +92,12 @@ bool docker::parse_docker(sinsp_container_manager* manager, sinsp_container_info
 	// Saving full object for container event parsing/writing
 	container->m_healthcheck_obj = config_obj["Healthcheck"];
 
-	container->parse_liveness_probe(config_obj["livenessProbe"]);
+	container->parse_liveness_readiness_probe(config_obj["livenessProbe"]);
+	container->parse_liveness_readiness_probe(config_obj["readinessProbe"]);
 
 	// Saving full object for container event parsing/writing
 	container->m_liveness_probe_obj = config_obj["livenessProbe"];
+	container->m_readiness_probe_obj = config_obj["readinessProbe"];
 
 	// containers can be spawned using just the imageID as image name,
 	// with or without the hash prefix (e.g. sha256:)
